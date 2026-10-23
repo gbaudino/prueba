@@ -6,6 +6,7 @@ SELECT
   COUNT(*) AS filas,
   COUNT(DISTINCT customer_id) AS clientes
 FROM raw.customers;
+-- no hay historico de clientes, 1 unico cliente por cada customer_id
 
 
 -- tabla products
@@ -13,6 +14,8 @@ SELECT
   COUNT(*) AS filas,
   COUNT(DISTINCT product_id) AS productos
 FROM raw.products;
+-- no se mantiene un historico de los productos (y su precio), hay exactamente 1 unico producto por cada product_id
+-- esto imposibilita determinar exactamente las ganancias historicas, ya que el precio de venta de un producto puede haber cambiado
 
 
 -- tabla orders
