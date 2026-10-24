@@ -1,1 +1,8 @@
 .venv
+target/
+dbt_packages/
+logs/
+.env
+.user.yml
+.DS_Store
+warehouse.duckdb

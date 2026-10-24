@@ -1,0 +1,11 @@
+ecommerce:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: data/warehouse.duckdb
+      attach:
+        - path: data/ecommerce.duckdb
+          alias: source_db
+          read_only: true
+      threads: 4

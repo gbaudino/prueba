@@ -1,0 +1,90 @@
+version: 2
+
+# tests sobre el schema raw con severity warn
+# los dejo para mostrar los problemas que encontre en la exploracion y que se corrigen en staging
+sources:
+  - name: raw
+    database: source_db
+    schema: raw
+    tables:
+      - name: customers
+        columns:
+          - name: customer_id
+            data_tests:
+              - non_blank: { config: { severity: warn } }
+              - unique: { config: { severity: warn } }
+          - name: email
+            data_tests:
+              - non_blank: { config: { severity: warn } }
+          - name: country_code
+            data_tests:
+              - non_blank: { config: { severity: warn } }
+          - name: created_at
+            data_tests:
+              - not_null: { config: { severity: warn } }
+
+      - name: products
+        columns:
+          - name: product_id
+            data_tests:
+              - non_blank: { config: { severity: warn } }
+              - unique: { config: { severity: warn } }
+          - name: category
+            data_tests:
+              - non_blank: { config: { severity: warn } }
+          - name: unit_price
+            data_tests:
+              - not_null: { config: { severity: warn } }
+
+      - name: orders
+        data_tests:
+          # revisamos la unicidad de (id orden, status, event_at), pero encontraremos duplicados
+          # por el problema ya visto: 443 eventos reingestados (mismo evento, distinto _ingested_at)
+          - unique_combination:
+              arguments: { columns: [order_id, status, event_at] }
+              config: { severity: warn }
+        columns:
+          - name: order_id
+            data_tests:
+              - non_blank: { config: { severity: warn } }
+          - name: customer_id
+            data_tests:
+              - non_blank: { config: { severity: warn } }
+              - relationships:
+                  arguments:
+                    { to: "source('raw', 'customers')", field: customer_id }
+                  config: { severity: warn }
+          - name: status
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values:
+                      [created, paid, shipped, delivered, cancelled, returned]
+                  config: { severity: warn }
+          - name: event_at
+            data_tests:
+              - not_null: { config: { severity: warn } }
+
+      - name: order_items
+        data_tests:
+          # revisamos la unicidad de id orden y num linea, pero tamb tiene duplicados
+          # y tambien por el problema ya visto: 205 lineas reingestadas
+          - unique_combination:
+              arguments: { columns: [order_id, line_number] }
+              config: { severity: warn }
+        columns:
+          - name: order_id
+            data_tests:
+              - relationships:
+                  arguments: { to: "source('raw', 'orders')", field: order_id }
+                  config: { severity: warn }
+          - name: product_id
+            data_tests:
+              - relationships:
+                  arguments:
+                    { to: "source('raw', 'products')", field: product_id }
+                  config: { severity: warn }
+          - name: quantity
+            data_tests:
+              - not_null: { config: { severity: warn } }
+              - positive: { config: { severity: warn } }
