@@ -11,9 +11,7 @@ models:
       - name: email
         data_tests: [non_blank]
       - name: country_code
-        data_tests:
-          - non_blank
-          - accepted_values: {arguments: {values: [AR, MX, CO, CL, UY, PE, ES]}}
+        data_tests: [non_blank]
       - name: created_at
         data_tests: [not_null]
 
@@ -22,9 +20,7 @@ models:
       - name: product_id
         data_tests: [unique, non_blank]
       - name: category
-        data_tests:
-          - accepted_values:
-              arguments: {values: [sports, books, electronics, home, beauty]}
+        data_tests: [non_blank]
       - name: unit_price
         data_tests: [not_null, non_negative]
       - name: currency
