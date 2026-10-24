@@ -1,6 +1,4 @@
-
 -- quiero encontrar valores faltantes o imposibles
-
 
 -- tabla customers
 -- chequeo que todos tengan id, email y pais

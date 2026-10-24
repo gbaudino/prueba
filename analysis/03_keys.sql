@@ -1,6 +1,5 @@
 -- propongo las keys de cada tabla y veo que sea unica
 
-
 -- tabla customers
 SELECT
   COUNT(*) AS filas,

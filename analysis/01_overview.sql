@@ -1,7 +1,9 @@
 -- la idea es revisar como son las tablas, los tipos de datos y los valores categoricos de interes
 
 -- tamanos
-SELECT table_name AS tabla, estimated_size AS filas
+SELECT
+    table_name AS tabla,
+    estimated_size AS filas
 FROM duckdb_tables()
 WHERE schema_name = 'raw';
 
