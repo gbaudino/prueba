@@ -1,0 +1,66 @@
+version: 2
+
+# tests sobre staging con severity error porque  aca ya no debe quedar ninguno de los problemas de raw
+models:
+  - name: stg_customers
+    data_tests:
+      - not_before: {arguments: {column_name: updated_at, other_column: created_at}}
+    columns:
+      - name: customer_id
+        data_tests: [unique, non_blank]
+      - name: email
+        data_tests: [non_blank]
+      - name: country_code
+        data_tests:
+          - non_blank
+          - accepted_values: {arguments: {values: [AR, MX, CO, CL, UY, PE, ES]}}
+      - name: created_at
+        data_tests: [not_null]
+
+  - name: stg_products
+    columns:
+      - name: product_id
+        data_tests: [unique, non_blank]
+      - name: category
+        data_tests:
+          - accepted_values:
+              arguments: {values: [sports, books, electronics, home, beauty]}
+      - name: unit_price
+        data_tests: [not_null, non_negative]
+      - name: currency
+        data_tests:
+          # como todo es USD, si aparece otra moneda hay que decidir conversion antes de sumar ingresos
+          - accepted_values: {arguments: {values: [USD]}}
+
+  - name: stg_orders
+    data_tests:
+      - unique_combination: {arguments: {columns: [order_id, status, event_at]}}
+      # un mismo estado no debe repetirse en la misma orden
+      - unique_combination: {arguments: {columns: [order_id, status]}}
+    columns:
+      - name: order_id
+        data_tests: [non_blank]
+      - name: customer_id
+        data_tests:
+          - non_blank
+          - relationships: {arguments: {to: "ref('stg_customers')", field: customer_id}}
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments: {values: [created, paid, shipped, delivered, cancelled, returned]}
+      - name: event_at
+        data_tests: [not_null]
+
+  - name: stg_order_items
+    data_tests:
+      - unique_combination: {arguments: {columns: [order_id, line_number]}}
+    columns:
+      - name: order_id
+        data_tests:
+          - non_blank
+          - relationships: {arguments: {to: "ref('stg_orders')", field: order_id}}
+      - name: product_id
+        data_tests:
+          - relationships: {arguments: {to: "ref('stg_products')", field: product_id}}
+      - name: quantity
+        data_tests: [not_null, positive]
