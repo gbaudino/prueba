@@ -1,7 +1,7 @@
 [project]
-name = "prueba-dataeng"
+name = "prueba"
 version = "0.1.0"
-description = "Add your description here"
+description = "Prueba de un modelo de datos de un ecommerce. Craftech."
 readme = "README.md"
 requires-python = ">=3.13, <3.14"
 dependencies = [
