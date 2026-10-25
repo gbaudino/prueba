@@ -26,19 +26,20 @@ FROM raw.orders;
 
 -- hay eventos que llegan despues de otro evento posterior de la misma orden?
 WITH
-    eventos AS (
-        SELECT
-            order_id,
-            status,
-            event_at,
-            MIN(_ingested_at) AS ingested_at
-        FROM
-            raw.orders
-        GROUP BY
-            order_id,
-            status,
-            event_at
-    )
+eventos AS (
+    SELECT
+        order_id,
+        status,
+        event_at,
+        MIN(_ingested_at) AS ingested_at
+    FROM
+        raw.orders
+    GROUP BY
+        order_id,
+        status,
+        event_at
+)
+
 SELECT
     COUNT(*) AS eventos_fuera_de_orden,
     COUNT(DISTINCT a.order_id) AS ordenes_afectadas
@@ -46,8 +47,7 @@ FROM
     eventos AS a
 WHERE
     EXISTS (
-        SELECT
-            1
+        SELECT 1
         FROM
             eventos AS b
         WHERE
@@ -60,37 +60,38 @@ WHERE
 
 -- los duplicados llegan en la misma carga o en otra posterior?
 WITH
-    duplicados AS (
-        SELECT
-            'orders' AS tabla,
-            MAX(_ingested_at) - MIN(_ingested_at) AS gap
-        FROM
-            raw.orders
-        GROUP BY
-            order_id,
-            status,
-            event_at
-        HAVING
-            COUNT(*) > 1
-        UNION ALL
-        SELECT
-            'order_items' AS tabla,
-            MAX(_ingested_at) - MIN(_ingested_at) AS gap
-        FROM
-            raw.order_items
-        GROUP BY
-            order_id,
-            line_number
-        HAVING
-            COUNT(*) > 1
-    )
+duplicados AS (
+    SELECT
+        'orders' AS tabla,
+        MAX(_ingested_at) - MIN(_ingested_at) AS gap
+    FROM
+        raw.orders
+    GROUP BY
+        order_id,
+        status,
+        event_at
+    HAVING
+        COUNT(*) > 1
+    UNION ALL
+    SELECT
+        'order_items' AS tabla,
+        MAX(_ingested_at) - MIN(_ingested_at) AS gap
+    FROM
+        raw.order_items
+    GROUP BY
+        order_id,
+        line_number
+    HAVING
+        COUNT(*) > 1
+)
+
 SELECT
     tabla,
     COUNT(*) AS grupos_duplicados,
     MAX(gap) AS gap_max,
-    COUNT(*) FILTER(
+    COUNT(*) FILTER (
         WHERE
-            gap > INTERVAL 1 DAY
+        gap > INTERVAL 1 DAY
     ) AS gap_mayor_1_dia
 FROM
     duplicados

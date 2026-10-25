@@ -3,9 +3,10 @@
 with orders as (
     select
         customer_id,
-        count(*)                                                        as orders_count,
-        min(created_at)                                                 as first_order_at,
-        max(created_at) filter (where final_status <> 'cancelled')      as last_purchase_at
+        count(*) as orders_count,
+        min(created_at) as first_order_at,
+        max(created_at) filter (where final_status <> 'cancelled')
+            as last_purchase_at
     from {{ ref('int_order_lifecycle') }}
     where is_complete
     group by customer_id
@@ -19,10 +20,16 @@ select
     c.country_code,
     c.segment,
     c.created_at,
-    date_trunc('month', c.created_at)::date as signup_month,
-    coalesce(o.orders_count, 0)             as orders_count,
     o.first_order_at,
     o.last_purchase_at,
-    coalesce(o.last_purchase_at >= (select max(event_at) from {{ ref('stg_orders') }}) - interval '{{ var("active_window_days") }} days', false) as is_active
-from {{ ref('stg_customers') }} c
-left join orders o using (customer_id)
+    date_trunc('month', c.created_at)::date as signup_month,
+    coalesce(o.orders_count, 0) as orders_count,
+    coalesce(
+        o.last_purchase_at
+        >= (select max(event_at) from {{ ref('stg_orders') }}
+        )
+        - interval '{{ var("active_window_days") }} days',
+        false
+    ) as is_active
+from {{ ref('stg_customers') }} as c
+left join orders as o on c.customer_id = o.customer_id

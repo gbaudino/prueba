@@ -9,7 +9,8 @@ SELECT
     created_at,
     updated_at
 FROM raw.customers
-WHERE customer_id IS NULL
+WHERE
+    customer_id IS NULL
     OR TRIM(customer_id) = ''
     OR email IS NULL
     OR TRIM(email) = ''
@@ -32,7 +33,8 @@ SELECT
     created_at,
     updated_at
 FROM raw.products
-WHERE product_id IS NULL
+WHERE
+    product_id IS NULL
     OR TRIM(product_id) = ''
     OR product_name IS NULL
     OR TRIM(product_name) = ''
@@ -56,7 +58,8 @@ SELECT
     event_at,
     _ingested_at
 FROM raw.orders
-WHERE order_id IS NULL
+WHERE
+    order_id IS NULL
     OR TRIM(order_id) = ''
     OR customer_id IS NULL
     OR TRIM(customer_id) = ''
@@ -75,7 +78,8 @@ SELECT
     quantity,
     _ingested_at
 FROM raw.order_items
-WHERE order_id IS NULL
+WHERE
+    order_id IS NULL
     OR TRIM(order_id) = ''
     OR line_number IS NULL
     OR line_number < 1

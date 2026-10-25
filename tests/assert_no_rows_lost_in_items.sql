@@ -4,25 +4,22 @@ SELECT
     f.n_fct
 FROM
     (
-        SELECT
-            count(*) AS n_stg
+        SELECT count(*) AS n_stg
         FROM
-            {{ref ('stg_order_items')}}
+            {{ ref ('stg_order_items') }}
         WHERE
             order_id IN (
-                SELECT
-                    order_id
+                SELECT order_id
                 FROM
-                    {{ref ('int_order_lifecycle')}}
+                    {{ ref ('int_order_lifecycle') }}
                 WHERE
                     is_complete
             )
-    ) s,
+    ) AS s,
     (
-        SELECT
-            count(*) AS n_fct
+        SELECT count(*) AS n_fct
         FROM
-            {{ref ('fct_order_items')}}
-    ) f
+            {{ ref ('fct_order_items') }}
+    ) AS f
 WHERE
     s.n_stg <> f.n_fct
