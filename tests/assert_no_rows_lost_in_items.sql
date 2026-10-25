@@ -14,6 +14,8 @@ FROM
                     order_id
                 FROM
                     {{ref ('int_order_lifecycle')}}
+                WHERE
+                    is_complete
             )
     ) s,
     (

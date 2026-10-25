@@ -7,6 +7,7 @@ with orders as (
         min(created_at)                                                 as first_order_at,
         max(created_at) filter (where final_status <> 'cancelled')      as last_purchase_at
     from {{ ref('int_order_lifecycle') }}
+    where is_complete
     group by customer_id
 )
 

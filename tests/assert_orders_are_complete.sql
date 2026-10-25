@@ -1,14 +1,9 @@
 {{config (severity = 'warn')}}
--- las ordenes incompletas (sin items o con estados faltantes) no entran a int_order_lifecycle
--- vemos que este test da 6, esas 6 son excluidas en int y obvio desp en marts
-SELECT DISTINCT
+-- las ordenes incompletas (sin items o con estados faltantes) quedan en int_order_lifecycle
+-- con is_complete = false y no entran a los marts
+SELECT
     order_id
 FROM
-    {{ref ('stg_orders')}}
+    {{ref ('int_order_lifecycle')}}
 WHERE
-    order_id NOT IN (
-        SELECT
-            order_id
-        FROM
-            {{ref ('int_order_lifecycle')}}
-    )
+    NOT is_complete
