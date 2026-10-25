@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: "is_active = compra no cancelada en la ventana de active_window_days"
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+      - name: country_code
+        data_tests: [not_null]
+      - name: signup_month
+        data_tests: [not_null]
+      - name: is_active
+        data_tests: [not_null]
+
+  - name: dim_products
+    columns:
+      - name: product_id
+        data_tests: [unique, not_null]
+      - name: category
+        data_tests: [not_null]
+
+  - name: fct_orders
+    description: "1 fila por orden con estado final. agrego importe"
+    columns:
+      - name: order_id
+        data_tests: [unique, not_null]
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: "ref('dim_customers')", field: customer_id}}
+      - name: final_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: [created, paid, shipped, delivered, cancelled, returned]}
+      - name: order_date
+        data_tests: [not_null]
+      - name: order_amount
+        data_tests: [not_null, non_negative]
+
+  - name: fct_order_items
+    data_tests:
+      - unique_combination: {arguments: {columns: [order_id, line_number]}}
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: "ref('fct_orders')", field: order_id}}
+      - name: product_id
+        data_tests:
+          - relationships: {arguments: {to: "ref('dim_products')", field: product_id}}
+      - name: category
+        data_tests: [not_null]
+      - name: quantity
+        data_tests: [positive]
+      - name: line_amount
+        data_tests: [not_null, non_negative]
