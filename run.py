@@ -8,11 +8,15 @@ ROOT = Path(__file__).parent
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="corre el pipeline desde cero")
+    parser = argparse.ArgumentParser(description="corre el pipeline")
+    parser.add_argument("--full-refresh", action="store_true", help="reconstruye todo desde raw")
     parser.add_argument("--queries", action="store_true", help="imprime las respuestas")
     args = parser.parse_args()
 
-    subprocess.run(["dbt", "build"], cwd=ROOT, check=True)
+    comando = ["dbt", "build"]
+    if args.full_refresh:
+        comando.append("--full-refresh")
+    subprocess.run(comando, cwd=ROOT, check=True)
 
     if args.queries:
         con = duckdb.connect(str(ROOT / "data/warehouse.duckdb"), read_only=True)
