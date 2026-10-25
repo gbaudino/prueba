@@ -2,8 +2,18 @@ name: ecommerce
 version: "1.0.0"
 profile: ecommerce
 
+vars:
+  # dias sin comprar a partir de los cuales un cliente deja de considerarse activo
+  active_window_days: 90
+
 models:
   ecommerce:
     staging:
-      +materialized: view
+      +materialized: table
       +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts
